@@ -24,13 +24,13 @@ const AppBar = () => {
     <View style={styles.container}>
       <ScrollView horizontal contentContainerStyle={styles.tabsContainer}>
         <Link to="/" component={Pressable}>
-          <Text color="primary" fontWeight="bold" style={styles.tab}>
+          <Text color="textAppbar" fontWeight="bold" style={styles.tab}>
             Repositories
           </Text>
         </Link>
 
         <Link to="/signin" component={Pressable}>
-          <Text color="primary" fontWeight="bold" style={styles.tab}>
+          <Text color="textAppbar" fontWeight="bold" style={styles.tab}>
             Sign in
           </Text>
         </Link>
