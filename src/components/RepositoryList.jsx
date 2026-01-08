@@ -1,6 +1,6 @@
 import { FlatList, View, StyleSheet } from "react-native";
 import RepositoryItem from "./RepositoryItem";
-import { useState, useEffect } from "react";
+import useRepositories from "../hooks/useRepositories";
 
 const styles = StyleSheet.create({
   separator: {
@@ -11,24 +11,11 @@ const styles = StyleSheet.create({
 const ItemSeparator = () => <View style={styles.separator} />;
 
 const RepositoryList = () => {
-  const [repositories, setRepositories] = useState({ edges: [] });
-  const [loading, setLoading] = useState(true);
+  const { repositories, loading, refetch } = useRepositories();
 
-  const fetchRepositories = async () => {
-    try {
-      const response = await fetch("http://10.0.2.2:5000/api/repositories");
-      const json = await response.json();
-      setRepositories(json);
-    } catch (error) {
-      console.error("Failed to fetch repositories:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchRepositories().finally(() => setLoading(false));
-  }, []);
-
-  const repositoryNodes = repositories.edges.map((edge) => edge.node);
+  const repositoryNodes = repositories
+    ? repositories.edges.map((edge) => edge.node)
+    : [];
 
   return (
     <FlatList
@@ -36,6 +23,8 @@ const RepositoryList = () => {
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <RepositoryItem item={item} />}
       ItemSeparatorComponent={ItemSeparator}
+      onRefresh={refetch}
+      refreshing={loading}
     />
   );
 };
