@@ -1,8 +1,9 @@
-import { View, StyleSheet, TextInput, Pressable } from 'react-native';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-import Text from './Text';
-import theme from '../theme';
+import { View, StyleSheet, TextInput, Pressable } from "react-native";
+import { Formik } from "formik";
+import * as yup from "yup";
+import Text from "./Text";
+import theme from "../theme";
+import useSignIn from "../hooks/useSignIn";
 
 const styles = StyleSheet.create({
   container: {
@@ -10,16 +11,16 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     padding: 10,
     marginBottom: 5,
     borderRadius: 5,
   },
   inputError: {
-    borderColor: '#d73a4a',
+    borderColor: "#d73a4a",
   },
   errorText: {
-    color: '#d73a4a',
+    color: "#d73a4a",
     marginBottom: 10,
   },
   button: {
@@ -27,32 +28,48 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: theme.colors.primary,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
 });
 
 const validationSchema = yup.object().shape({
-  username: yup.string().required('Username is required'),
-  password: yup.string().required('Password is required'),
+  username: yup.string().required("Username is required"),
+  password: yup.string().required("Password is required"),
 });
 
 const SignIn = () => {
-  const onSubmit = (values) => {
-    console.log(values);
+  const [signIn] = useSignIn();
+
+  const onSubmit = async (values) => {
+    const { username, password } = values;
+
+    try {
+      const { data } = await signIn({ username, password });
+      console.log(data);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
     <View style={styles.container}>
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={{ username: "", password: "" }}
         onSubmit={onSubmit}
         validationSchema={validationSchema}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+        }) => (
           <View>
             <Text>Username</Text>
             <TextInput
@@ -60,8 +77,8 @@ const SignIn = () => {
                 styles.input,
                 touched.username && errors.username && styles.inputError,
               ]}
-              onChangeText={handleChange('username')}
-              onBlur={handleBlur('username')}
+              onChangeText={handleChange("username")}
+              onBlur={handleBlur("username")}
               value={values.username}
               autoCapitalize="none"
             />
@@ -75,8 +92,8 @@ const SignIn = () => {
                 styles.input,
                 touched.password && errors.password && styles.inputError,
               ]}
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
+              onChangeText={handleChange("password")}
+              onBlur={handleBlur("password")}
               value={values.password}
               secureTextEntry
             />
