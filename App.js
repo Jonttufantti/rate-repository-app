@@ -4,8 +4,10 @@ import Main from "./src/components/Main";
 import { ApolloProvider } from "@apollo/client/react";
 import createApolloClient from "./src/utils/apolloClient";
 import Constants from "expo-constants";
+import AuthStorage from "./src/utils/authStorage";
 
-const apolloClient = createApolloClient();
+const authStorage = new AuthStorage();
+const apolloClient = createApolloClient(authStorage);
 
 const App = () => {
   console.log("Constants", Constants.expoConfig);

@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client/reactr";
+import { useMutation } from "@apollo/client/react";
 import { AUTHENTICATE } from "../graphql/mutations";
 
 const useSignIn = () => {
