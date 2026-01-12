@@ -1,8 +1,11 @@
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import Constants from 'expo-constants';
-import { Link } from 'react-router-native';
-import Text from './Text';
-import theme from '../theme';
+import { View, StyleSheet, ScrollView, Pressable } from "react-native";
+import Constants from "expo-constants";
+import { Link, useNavigate } from "react-router-native";
+import { useQuery, useApolloClient } from "@apollo/client/react";
+import Text from "./Text";
+import theme from "../theme";
+import useAuthStorage from "../hooks/useAuthStorage";
+import { ME } from "../graphql/queries";
 
 const styles = StyleSheet.create({
   container: {
@@ -11,7 +14,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.textPrimary,
   },
   tabsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   tab: {
     paddingVertical: 15,
@@ -20,6 +23,19 @@ const styles = StyleSheet.create({
 });
 
 const AppBar = () => {
+  const authStorage = useAuthStorage();
+  const apolloClient = useApolloClient();
+  const navigate = useNavigate();
+
+  const { data } = useQuery(ME);
+  const isAuthenticated = !!data?.me;
+
+  const handleSignOut = async () => {
+    await authStorage.removeAccessToken();
+    await apolloClient.resetStore();
+    navigate("/");
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView horizontal contentContainerStyle={styles.tabsContainer}>
@@ -29,11 +45,19 @@ const AppBar = () => {
           </Text>
         </Link>
 
-        <Link to="/signin" component={Pressable}>
-          <Text color="textAppbar" fontWeight="bold" style={styles.tab}>
-            Sign in
-          </Text>
-        </Link>
+        {isAuthenticated ? (
+          <Pressable onPress={handleSignOut}>
+            <Text color="textAppbar" fontWeight="bold" style={styles.tab}>
+              Sign out
+            </Text>
+          </Pressable>
+        ) : (
+          <Link to="/signin" component={Pressable}>
+            <Text color="textAppbar" fontWeight="bold" style={styles.tab}>
+              Sign in
+            </Text>
+          </Link>
+        )}
       </ScrollView>
     </View>
   );

@@ -4,7 +4,7 @@ import { AUTHENTICATE } from "../graphql/mutations";
 import useAuthStorage from "./useAuthStorage";
 
 const useSignIn = () => {
-  const [mutate, result] = useMutation(AUTHENTICATE);
+  const [mutate] = useMutation(AUTHENTICATE);
   const authStorage = useAuthStorage();
   const apolloClient = useApolloClient();
   const navigate = useNavigate();
@@ -16,15 +16,14 @@ const useSignIn = () => {
       },
     });
 
-    const accessToken = data.authenticate.accessToken;
+    await authStorage.setAccessToken(data.authenticate.accessToken);
 
-    await authStorage.setAccessToken(accessToken);
     await apolloClient.resetStore();
 
-    navigate("/");
+    navigate("/repositories");
   };
 
-  return [signIn, result];
+  return [signIn];
 };
 
 export default useSignIn;
