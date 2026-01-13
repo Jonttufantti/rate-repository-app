@@ -4,6 +4,8 @@ import useRepositories from "../hooks/useRepositories";
 import { useNavigate } from "react-router-native";
 import { Picker } from "@react-native-picker/picker";
 import { useState } from "react";
+import { useDebounce } from "use-debounce";
+import RepositoryListHeader from "./RepositoryListHeader";
 
 const styles = StyleSheet.create({
   separator: {
@@ -31,8 +33,13 @@ const ItemSeparator = () => <View style={styles.separator} />;
 const RepositoryList = () => {
   const navigate = useNavigate();
   const [order, setOrder] = useState("LATEST");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [debouncedKeyword] = useDebounce(searchKeyword, 500);
 
-  const { repositories, loading, refetch } = useRepositories(ORDERINGS[order]);
+  const { repositories, loading, refetch } = useRepositories({
+    ...ORDERINGS[order],
+    searchKeyword: debouncedKeyword,
+  });
 
   const repositoryNodes = repositories
     ? repositories.edges.map((edge) => edge.node)
@@ -43,14 +50,21 @@ const RepositoryList = () => {
       data={repositoryNodes}
       keyExtractor={(item) => item.id}
       ListHeaderComponent={
-        <Picker
-          selectedValue={order}
-          onValueChange={(value) => setOrder(value)}
-        >
-          <Picker.Item label="Latest repositories" value="LATEST" />
-          <Picker.Item label="Highest rated repositories" value="HIGHEST" />
-          <Picker.Item label="Lowest rated repositories" value="LOWEST" />
-        </Picker>
+        <View>
+          <RepositoryListHeader
+            searchKeyword={searchKeyword}
+            setSearchKeyword={setSearchKeyword}
+          />
+
+          <Picker
+            selectedValue={order}
+            onValueChange={(value) => setOrder(value)}
+          >
+            <Picker.Item label="Latest repositories" value="LATEST" />
+            <Picker.Item label="Highest rated repositories" value="HIGHEST" />
+            <Picker.Item label="Lowest rated repositories" value="LOWEST" />
+          </Picker>
+        </View>
       }
       renderItem={({ item }) => (
         <Pressable onPress={() => navigate(`/repositories/${item.id}`)}>
