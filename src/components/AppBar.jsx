@@ -66,6 +66,14 @@ const AppBar = () => {
             </Text>
           </Link>
         )}
+
+        {!isAuthenticated && (
+          <Link to="/signup" component={Pressable}>
+            <Text color="textAppbar" fontWeight="bold" style={styles.tab}>
+              Sign up
+            </Text>
+          </Link>
+        )}
       </ScrollView>
     </View>
   );
