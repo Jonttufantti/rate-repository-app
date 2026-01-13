@@ -53,6 +53,14 @@ const AppBar = () => {
           </Link>
         )}
 
+        {isAuthenticated && (
+          <Link to="/my-reviews" component={Pressable}>
+            <Text color="textAppbar" fontWeight="bold" style={styles.tab}>
+              My reviews
+            </Text>
+          </Link>
+        )}
+
         {isAuthenticated ? (
           <Pressable onPress={handleSignOut}>
             <Text color="textAppbar" fontWeight="bold" style={styles.tab}>
