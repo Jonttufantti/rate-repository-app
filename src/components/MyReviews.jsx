@@ -1,10 +1,10 @@
-import { FlatList, View } from "react-native";
+import { FlatList } from "react-native";
 import { useQuery } from "@apollo/client/react";
 import { ME } from "../graphql/queries";
 import ReviewItem from "./ReviewItem";
 
 const MyReviews = () => {
-  const { data, loading } = useQuery(ME, {
+  const { data, loading, refetch } = useQuery(ME, {
     variables: { includeReviews: true },
     fetchPolicy: "cache-and-network",
   });
@@ -17,7 +17,9 @@ const MyReviews = () => {
     <FlatList
       data={reviews}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <ReviewItem review={item} />}
+      renderItem={({ item }) => (
+        <ReviewItem review={item} refetchReviews={refetch} />
+      )}
     />
   );
 };

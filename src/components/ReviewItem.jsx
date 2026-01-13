@@ -1,14 +1,13 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Pressable, Alert } from "react-native";
 import Text from "./Text";
 import theme from "../theme";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-native";
+import { useMutation } from "@apollo/client/react";
+import { DELETE_REVIEW } from "../graphql/mutations";
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    padding: 15,
-    backgroundColor: "white",
-  },
+  container: { flexDirection: "row", padding: 15, backgroundColor: "white" },
   ratingContainer: {
     width: 50,
     height: 50,
@@ -19,21 +18,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 15,
   },
-  content: {
-    flex: 1,
-  },
-  username: {
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  date: {
-    color: theme.colors.textSecondary,
-    marginBottom: 4,
-  },
+  content: { flex: 1 },
+  username: { fontWeight: "bold", marginBottom: 4 },
+  date: { color: theme.colors.textSecondary, marginBottom: 4 },
   text: {},
+  actions: { flexDirection: "row", marginTop: 10 },
+  button: {
+    backgroundColor: theme.colors.primary,
+    padding: 8,
+    marginRight: 10,
+    borderRadius: 5,
+  },
+  buttonText: { color: "white", fontWeight: "bold" },
 });
 
-const ReviewItem = ({ review }) => {
+const ReviewItem = ({ review, refetchReviews }) => {
+  const navigate = useNavigate();
+  const [deleteReview] = useMutation(DELETE_REVIEW);
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete review",
+      "Are you sure you want to delete this review?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            await deleteReview({ variables: { id: review.id } });
+            refetchReviews();
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.ratingContainer}>
@@ -44,11 +64,22 @@ const ReviewItem = ({ review }) => {
           {review.user?.username || "Unknown"}
         </Text>
         <Text style={styles.date}>
-          {review.createdAt
-            ? format(new Date(review.createdAt), "dd.MM.yyyy")
-            : ""}
+          {format(new Date(review.createdAt), "dd.MM.yyyy")}
         </Text>
-        <Text style={styles.text}>{review.text || ""}</Text>
+        <Text style={styles.text}>{review.text}</Text>
+
+        <View style={styles.actions}>
+          <Pressable
+            style={styles.button}
+            onPress={() => navigate(`/repositories/${review.repository.id}`)}
+          >
+            <Text style={styles.buttonText}>View repository</Text>
+          </Pressable>
+
+          <Pressable style={styles.button} onPress={handleDelete}>
+            <Text style={styles.buttonText}>Delete review</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
